@@ -24,14 +24,6 @@ import java.net.URLDecoder
 
 class TwitterAPIHandler(private val webClient: WebClient) {
 
-    init {
-        logger.info { """
-            ******************************************
-            Environment variable is $TWITTER_API_KEY
-            ******************************************
-            """ }
-    }
-
     suspend fun consumeStreamFromTwitter(req: ServerRequest): ServerResponse {
         val apiCall = webClient.get()
             .uri(TWITTER_STREAM_URL)
