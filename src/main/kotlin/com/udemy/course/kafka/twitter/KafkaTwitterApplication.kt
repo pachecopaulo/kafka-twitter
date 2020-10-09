@@ -1,7 +1,8 @@
 package com.udemy.course.kafka.twitter
 
-import com.udemy.course.kafka.twitter.config.Config
-import com.udemy.course.kafka.twitter.config.allBeans
+import com.udemy.course.kafka.twitter.configuration.Config.ServerConfig.port
+import com.udemy.course.kafka.twitter.configuration.Config.ServerConfig.shutdownTimeoutSeconds
+import com.udemy.course.kafka.twitter.configuration.allBeans
 import mu.KLogging
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.http.server.reactive.HttpHandler
@@ -21,7 +22,7 @@ class KafkaTwitterApplication {
 			allBeans().initialize(this)
 			refresh()
 		}
-		server = HttpServer.create().port(Config.SERVER_PORT)
+		server = HttpServer.create().port(port.value)
 
 		// create the http handler, and assign filters
 		httpHandler = WebHttpHandlerBuilder
@@ -31,7 +32,7 @@ class KafkaTwitterApplication {
 
 	fun startAndAwait() {
 		server.handle(ReactorHttpHandlerAdapter(httpHandler))
-			.bindUntilJavaShutdown(Duration.ofSeconds(Config.SERVER_SHUTDOWN_SECS)) { _ ->
+			.bindUntilJavaShutdown(Duration.ofSeconds(shutdownTimeoutSeconds.value)) { _ ->
 				logger.info { "Server Started" }
 			}
 	}

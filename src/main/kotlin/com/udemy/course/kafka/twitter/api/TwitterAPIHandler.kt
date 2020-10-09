@@ -1,33 +1,24 @@
 package com.udemy.course.kafka.twitter.api
 
-import com.udemy.course.kafka.twitter.config.Config.TWITTER_API_KEY
-import com.udemy.course.kafka.twitter.config.Config.TWITTER_RECENT_QUERY
-import com.udemy.course.kafka.twitter.config.Config.TWITTER_STREAM_URL
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import mu.KLogging
+import com.udemy.course.kafka.twitter.configuration.Config.AuthorizationConfig.twitterAPIKey
+import com.udemy.course.kafka.twitter.configuration.Config.EndpointConfig.twitterRecentSearchEndpoint
+import com.udemy.course.kafka.twitter.configuration.Config.EndpointConfig.twitterStreamEndpoint
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.APPLICATION_OCTET_STREAM
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlow
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.attributeOrNull
 import org.springframework.web.reactive.function.server.bodyAndAwait
 import org.springframework.web.reactive.function.server.queryParamOrNull
 import org.springframework.web.reactive.function.server.sse
 import java.lang.IllegalArgumentException
-import java.net.URLDecoder
 
 class TwitterAPIHandler(private val webClient: WebClient) {
-
     suspend fun consumeStreamFromTwitter(req: ServerRequest): ServerResponse {
         val apiCall = webClient.get()
-            .uri(TWITTER_STREAM_URL)
-            .header("Authorization", "Bearer $TWITTER_API_KEY")
+            .uri(twitterStreamEndpoint.value)
+            .header("Authorization", "Bearer ${twitterAPIKey.value}")
             .accept(APPLICATION_OCTET_STREAM)
             .retrieve()
             .bodyToFlow<ByteArray>()
@@ -45,8 +36,8 @@ class TwitterAPIHandler(private val webClient: WebClient) {
         }
 
         val apiCall = webClient.get()
-            .uri(TWITTER_RECENT_QUERY + querySearch)
-            .header("Authorization", "Bearer $TWITTER_API_KEY")
+            .uri(twitterRecentSearchEndpoint.value + querySearch)
+            .header("Authorization", "Bearer ${twitterAPIKey.value}")
             .accept(APPLICATION_JSON)
             .retrieve()
             .bodyToFlow<ByteArray>()
@@ -54,7 +45,7 @@ class TwitterAPIHandler(private val webClient: WebClient) {
         return ServerResponse.ok().bodyAndAwait(apiCall)
     }
 
-    companion object : KLogging() {
+    companion object {
         private const val MAX_TWITTER_CHAR_SIZE = 512
     }
 }

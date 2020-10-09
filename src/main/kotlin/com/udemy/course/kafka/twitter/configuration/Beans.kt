@@ -1,7 +1,8 @@
-package com.udemy.course.kafka.twitter.config
+package com.udemy.course.kafka.twitter.configuration
 
 import com.udemy.course.kafka.twitter.api.TwitterAPIHandler
 import com.udemy.course.kafka.twitter.api.TwitterAPIRoute
+import com.udemy.course.kafka.twitter.configuration.Config.APIConfig.apiBaseRoute
 import org.springframework.context.support.BeanDefinitionDsl
 import org.springframework.context.support.beans
 import org.springframework.http.MediaType
@@ -35,7 +36,7 @@ private fun routeBeans(ctx: BeanDefinitionDsl) = with (ctx) {
     bean(WebHttpHandlerBuilder.WEB_HANDLER_BEAN_NAME) {
         RouterFunctions.toWebHandler(
             router {
-                Config.BASE_ROUTE_URL.and(accept(MediaType.APPLICATION_JSON)).nest {
+                apiBaseRoute.value.and(accept(MediaType.APPLICATION_JSON)).nest {
                     add(ref<TwitterAPIRoute>().routes)
                 }
             }, HandlerStrategies.withDefaults()

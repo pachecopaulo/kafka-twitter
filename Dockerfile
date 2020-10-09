@@ -6,4 +6,4 @@ WORKDIR /usr/app
 COPY ${JAR_FILE} app.jar
 EXPOSE 8082
 USER app-user
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom -Dconfig.override_with_env_vars=true","-jar","app.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar"]

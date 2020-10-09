@@ -1,0 +1,11 @@
+version: '3'
+services:
+  kafka-producer:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - TWITTER_API_KEY=${TWITTER_API_KEY}
+    ports:
+      - '8080:8082'
+    restart: always
