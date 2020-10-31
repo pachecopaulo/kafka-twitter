@@ -21,15 +21,6 @@ fun queryParamAsString(request: ServerRequest, param: String): MonoK<String> = M
             message = "Query Parameter {$param} can't be converted to a string")
     }.k()
 
-fun pathParamAsString(request: ServerRequest, param: String): MonoK<String> = Mono
-    .just(request.pathVariable(param))
-    .onErrorMap { t ->
-        ErrorExceptions.PropertyValidationException(
-            invalidProperty = param,
-            cause = t,
-            message = "Parameter {$param} can't be converted to a string")
-    }.k()
-
 inline fun <reified T> okJson(p: () -> MonoK<T>) = ServerResponse
     .ok().contentType(APPLICATION_JSON)
     .body(BodyInserters.fromPublisher(p().value(), T::class.java))

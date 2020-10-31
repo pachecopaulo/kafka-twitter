@@ -28,17 +28,6 @@ private fun beans(ctx: BeanDefinitionDsl) = with(ctx) {
     bean<TwitterAPIRoutes>()
     bean { TwitterAPIHandler() }
 }
-//
-//private fun routeBeans(ctx: BeanDefinitionDsl) = with(ctx) {
-//    bean<RouterFunction<*>> {
-//        router {
-//            (path(apiBaseRoute.value)).nest {
-//                ref<TwitterAPIRoutes>().route(this)
-//            }
-//        }
-//    }
-//}
-
 
 private fun routeBeans(ctx: BeanDefinitionDsl) = with (ctx) {
     bean(WebHttpHandlerBuilder.WEB_HANDLER_BEAN_NAME) {

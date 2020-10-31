@@ -11,14 +11,14 @@ import com.udemy.course.kafka.twitter.api.helper.queryParamAsString
 import com.udemy.course.kafka.twitter.configuration.Config.AuthorizationConfig.twitterAPIKey
 import com.udemy.course.kafka.twitter.configuration.Config.EndpointConfig.twitterRecentSearchEndpoint
 import mu.KotlinLogging
+import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
-
-
-private val logger = KotlinLogging.logger {}
+import reactor.kotlin.extra.retry.retryRandomBackoff
+import java.time.Duration
 
 class TwitterAPIHandler {
 
@@ -31,10 +31,12 @@ class TwitterAPIHandler {
     fun findTweetsByKeyWord(request: ServerRequest) : Mono<ServerResponse> = okJson {
        MonoK.fx {
             val keySearch = queryParamAsString(request, "query")
-            webClient
+            val res = webClient
                 .defaultGet("recent?query=$keySearch")
                 .flatMap { it.bodyToMono(String::class.java) }
+                .retryRandomBackoff(RETRY_TIMES, Duration.ofMillis(RETRY_MIN_DELAY), Duration.ofMillis(RETRY_MAX_DELAY)) { Unit }
                 .k()
+           res
         }
     }
 
@@ -44,14 +46,3 @@ class TwitterAPIHandler {
         private const val RETRY_MAX_DELAY = 2000L
     }
 }
-
-//suspend fun consumeStreamFromTwitter(request: ServerRequest): ServerResponse {
-//        val apiCall = webClient.get()
-//            .uri(twitterStreamEndpoint.value)
-//            .header("Authorization", "Bearer ${twitterAPIKey.value}")
-//            .accept(APPLICATION_OCTET_STREAM)
-//            .retrieve()
-//            .bodyToFlow<ByteArray>()
-//
-//        return ServerResponse.ok().sse().bodyAndAwait<Any>(apiCall)
-//    }
